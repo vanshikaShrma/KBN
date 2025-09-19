@@ -1,22 +1,91 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus,
+.form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    background: linear-gradient(135deg, #f9fafb, #eef2ff); /* soft gradient background */
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    color: #1e293b;
+}
+
+/* Sidebar */
+#sidebar {
+    width: 260px; /* slightly wider */
+    min-height: 100vh;
+    background: linear-gradient(180deg, #667EEA 0%, #764BA2 100%); /* modern gradient */
+    color: #fff;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+    padding-top: 2rem;
+    position: fixed;
+    top: 56px; /* keeps it below navbar if you have one */
+    left: 0;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+}
+    /* Sidebar Links */
+    #sidebar .list-group-item {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.85);
+        font-weight: 500;
+        margin: 0.5rem 0;
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease-in-out;
+    }
+        /* Subtle glow effect */
+        #sidebar .list-group-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: left 0.3s ease;
+        }
+
+        #sidebar .list-group-item:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+
+            #sidebar .list-group-item:hover::before {
+                left: 0;
+            }
+
+        #sidebar .list-group-item.active {
+            font-weight: 600;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+/* Only apply margin when body has .with-sidebar */
+.with-sidebar #main-content {
+    margin-left: 260px; /* same as sidebar width */
+}
+
+.with-sidebar footer {
+    margin-left: 260px;
 }

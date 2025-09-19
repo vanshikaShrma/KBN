@@ -1,0 +1,69 @@
+﻿.register-page body {
+    background-color: #f5f5f5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+}
+
+/* Container for login card */
+.register-page .register-container {
+    display: flex;
+    justify-content: center; /* horizontal center */
+    margin-top: 80px; /* space from nav/top of page */
+}
+
+/* Login card styling */
+.register-page .register-card {
+    background: #fff;
+    padding: 50px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 500px; /* slightly larger form */
+}
+
+    .register-page .register-card h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+.register-page .form-floating > .form-control:focus ~ label,
+.register-page .form-floating > .form-control:not(:placeholder-shown) ~ label {
+    color: #495057;
+    font-weight: 500;
+}
+
+.register-page .btn-primary,
+.register-page .btn-outline-primary {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 12px; /* slightly bigger button */
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.register-page .external-login {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.register-page .alert-box {
+    background-color: #fff3cd; /* light yellow */
+    border-left: 5px solid #ffeeba; /* accent border */
+    padding: 15px 20px;
+    border-radius: 8px;
+    color: #856404;
+    font-size: 0.95rem;
+    margin-top: 20px;
+    line-height: 1.4;
+    display: none;
+}
+
+.register-page.alert-box a {
+    color: #856404;
+    text-decoration: underline;
+}
+
+.register-page .alert-box a:hover {
+    color: #533f03;
+}
