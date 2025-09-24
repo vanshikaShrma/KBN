@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - KBN</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="~/KBN.styles.css" asp-append-version="true" />
 </head>
 @{
@@ -42,8 +43,14 @@
             <!-- Sidebar -->
             <div class="bg-light border-end sidebar" id="sidebar">
                 <div class="list-group list-group-flush">
+                    <a class="list-group-item list-group-item-action p-2 fs-1" asp-area="" asp-controller="Home" asp-action="Index">
+                        KBN
+                    </a>
                     <a class="list-group-item list-group-item-action p-3" asp-area="" asp-controller="Home" asp-action="Index">
                         Home
+                    </a>
+                    <a class="list-group-item list-group-item-action p-3" asp-area="" asp-controller="DID" asp-action="Index">
+                        Phone Numbers
                     </a>
                     <a class="list-group-item list-group-item-action p-3" asp-area="" asp-controller="Home" asp-action="Privacy">
                         Privacy
@@ -66,10 +73,29 @@
             &copy; 2025 - KBN - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+    <!-- Toast container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-2" style="z-index: 1100;">
+        <div id="toastMessage" class="toast align-items-center text-white bg-success border-0 small py-1 px-1" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex w-100">
+                <div class="toast-body flex-grow-1"></div>
+               
+            </div>
+            <!-- Progress bar -->
+            <div class="progress" style="height: 3px;">
+                <div class="progress-bar" role="progressbar" style="width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="~/css/login.css" />
     <link rel="stylesheet" href="~/css/register.css" />
+    @* For pagination *@
+    <link href="~/jquery.bs_pagination.bs2.css" rel="stylesheet" />
+    <script src="~/jquery.bs_pagination.js"></script>
+    <script src="~/en.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

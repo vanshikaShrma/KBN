@@ -1,0 +1,40 @@
+﻿@model KBN.Models.DIDViewModel
+
+@Html.Hidden("resultCount", Model.TotalRows, new { id = "resultCount" })
+
+    <table class="table table-bordered table-striped">
+        <thead >
+            <tr>
+            <th scope="col" class="text-center">DID</th>
+            <th scope="col" class="text-center">City</th>
+            <th scope="col" class="text-center">Country</th>
+            <th scope="col" class="text-center">DID Status</th>
+            <th scope="col" class="text-center">Manage</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach(var item in Model.DIDs)
+        {
+            <tr>
+                <td class="text-center">@item.did</td>
+                <td class="text-center">@(String.IsNullOrEmpty(item.city) ? "-" : item.city)</td>
+                <td class="text-center">@(String.IsNullOrEmpty(item.country) ? "-" : item.country)</td>
+                <td class="text-center">-</td>
+                <td class="text-center">
+                    <button class="btn btn-outline-success updateButton"
+                            data-action="DID/UpdateDID/@item.id"
+                            title="Update">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+
+                    <button class="btn btn-outline-danger deleteButton"
+                            data-action="DID/DeleteDID/@item.id"
+                            title="Delete">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+
+            </tr>
+        }
+        </tbody>
+    </table>

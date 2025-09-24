@@ -1,0 +1,366 @@
+﻿@{
+    ViewData["Title"] = "Index";
+}
+
+
+
+
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-secondary mb-2 addDID" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    Add DIDs
+</button>
+<div class="d-flex align-items-center gap-2 mb-3">
+    <input placeholder="DID" class="form-control" id="searchDID" />
+    <input placeholder="City" class="form-control" id="searchCity" />
+    <input placeholder="Country" class="form-control" id="searchCountry" />
+    <button class="btn btn-primary searchButton">Search</button>
+    <button class="btn btn-secondary resetButton">Reset</button>
+    <select id="PageSize" class="form-select w-auto">
+        <option value="5">5 items per Page</option>
+        <option value="10">10 items per Page</option>
+        <option value="15">15 items per Page</option>
+        <option value="20">20 items per Page</option>
+    </select>
+</div>
+
+
+
+<div class="didContainer">
+    <!-- DIDs table container -->
+</div>
+
+<div id="paginate"></div>
+
+<!-- Modal -->
+<div class="modal fade " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        var defaultPageSize=5;
+        $(document).ready(function()
+        {
+             $("#PageSize").val(defaultPageSize);
+
+            loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+           $("#PageSize").change(function()
+           {
+               var selectedValue = $(this).val();
+               var pageSize = parseInt(selectedValue,10) || defaultPageSize;
+               loadAddressList({ pageNumber: 0, pageSize: pageSize });
+           });
+
+           $(document).on("click",".addDID",function()
+           {
+               $.ajax({
+                    url:"/DID/GetAddDIDPartial",
+                    type:"GET",
+                    dataType:"html",
+                    success:function(response)
+                    {
+                         $("#exampleModal .modal-dialog").addClass("addDIDModal");
+                        $("#exampleModal .modal-body").html(response);
+                        $("#exampleModal .modal-header h1").html("Add DIDs");
+                            $("#exampleModal").modal("show");
+                    },
+                    error:function(xhr,status,error)
+                    {
+                        console.log(error);
+                    }
+               });
+           });
+           $(document).on("click",".generate",function()
+           {
+               let start=$("#startRange").val();
+               let end=$("#endRange").val();
+               console.log("Start and End is : ",start,end);
+               $.ajax({
+                   url:"DID/GetRandomDIDs",
+                   type:"GET",
+                   dataType:"json",
+                   data:{start:start,end:end},
+                   success:function(response)
+                   {
+                       console.log(response.dids);
+                       response.dids.forEach(function(did) {
+                            $("#didTextArea").val(function(i, oldVal) {
+                                return oldVal + (oldVal ? "\n" : "") + did;
+                            });
+                       });
+                       bringDIDModaltable(response.dids)
+                       
+                   },
+                   error:function(xhr,status,error)
+                   {
+                       console.log("Error in getting radon dids: ",error);
+                   }
+               });
+
+           });
+           $(document).on('input', '#didTextArea', function() {
+                let text = $(this).val();
+                console.log(text);
+                let didList = text.split("\n").map(x => x.trim()).filter(x => x !== "");
+                bringDIDModaltable(didList);
+           });
+
+           $(document).on("click",".DIDAdd",function()
+           {
+               var DidList = [];
+               $("#modalDidTable tbody tr").each(function()
+               {
+                   var didcell = $(this).find("td").eq(0).text().trim();
+                   var cityInput = $(this).find("td").eq(2).find("input").val().trim();
+                   var country = $(this).find("td").eq(1).text().trim();
+
+                   if(didcell && !isNaN(didcell))
+                   {
+                       DidList.push({
+                           DID:parseInt(didcell),
+                           City:cityInput,
+                           Country:country,
+                           Status:false
+                       });
+                   }
+               });
+               console.log(DidList);
+               $.ajax({
+                   url:"DID/AddDIDs",
+                   type:"POST",
+                   contentType: "application/json; charset=utf-8",
+                   data: JSON.stringify(DidList),
+                   success:function(response)
+                   {
+                      if(response.success)
+                      {
+                           console.log(response.message);
+                           $("#exampleModal .modal-header h1").html("");
+                           $("#exampleModal").modal("hide");
+                           loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                           showToast(response.message, "success");
+                      }
+                      else{
+                          showToast(response.message, "danger");
+                      }
+
+                   },
+                   error:function(xhr,status,error)
+                   {
+                       console.log("Error in adding dids: ",error);
+                   }
+               });
+           });
+
+           $(document).on("click",".updateButton",function()
+           {
+               $.ajax({
+                   url:$(this).data("action"),
+                   type:"GET",
+                   dataType:"html",
+                   success:function(response){
+                       $("#exampleModal .modal-body").html(response);
+                       $("#exampleModal .modal-header h1").html("Update DID");
+                       // $.validator.unobstrusive.parse("#updateForm");
+                       $("#exampleModal").modal("show");
+                   },
+                   error:function(xhr,status,error)
+                   {
+                       console.log(error);
+                   }
+               });
+           });
+
+           $(document).on("submit","#updateForm",function(e)
+           {
+               e.preventDefault();
+
+               $.ajax({
+                   url:"DID/UpdateDID",
+                   type:"POST",
+                   data:$(this).serialize(),
+                   success:function(response)
+                   {
+                       if(response.success)
+                       {
+                           $("#exampleModal").modal("hide");
+                           $("#exampleModal .modal-header h1").html("");
+                            loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                             showToast(response.message, "success");
+                       }
+                       else{
+                            showToast(response.message, "danger");
+                       }
+                   },
+                   error:function(xhr,status,error)
+                   {
+                       console.log(error);
+                   }
+               });
+           });
+
+           $(document).on("click",".deleteButton",function(){
+               let actualURL=$(this).data("action");
+               $.ajax({
+                   url:"DID/DeleteDID",
+                   type:"GET",
+                   success:function(response){
+                       $("#exampleModal .modal-body").html(response);
+                       $("#exampleModal .modal-header h1").html("Delete DID");
+                       $("#deleteForm").data("action",actualURL);
+                       $("#exampleModal").modal("show");
+                   },
+                   error:function(xhr,status,error)
+                   {
+                       console.log(error);
+                   }
+               });
+           });
+
+           $(document).on("submit","#deleteForm",function(e){
+               e.preventDefault();
+               $.ajax({
+                   url:$(this).data("action"),
+                   type:"DELETE",
+                   success:function(response){
+                       $("#exampleModal").modal("hide");
+                       console.log(response.message);
+                       $("#exampleModal .modal-header h1").html("");
+                       loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                   },
+                   error:function(xhr,status,error)
+                   {
+                       console.log(error);
+                   }
+               });
+           });
+           
+           $(document).on("click", ".searchButton", function () {
+                loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+           });
+
+            $(document).on("click", ".resetButton", function () {
+                $("#searchDID").val("");
+                $("#searchCity").val("");
+                $("#searchCountry").val("");
+                loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+            });
+          
+        });
+
+        function bringDIDModaltable(list)
+        {
+
+            $.ajax({
+                url:"DID/GetDIDModalTable",
+                type:"POST",
+                contentType: "application/json",
+                data: JSON.stringify(list), 
+                success:function(response)
+                {
+                    $(".DIDTable").html(response);
+                },
+                error:function(xhr,status,error)
+                {
+                    console.log("Error in getting table of dids: ",error);
+                }
+            });
+        }
+        function loadPagination(pageNumber, pageSize) 
+        {
+            pageSize = parseInt(pageSize, 10) || defaultPageSize;
+            var totalRows = parseInt($('#resultCount').val(), 10) || 0;
+              console.log("loadPagination -> totalRows:", totalRows, "pageSize:", pageSize);
+            // destroy previous instance if present
+            try { $("#paginate").bs_pagination("destroy"); } catch (e) {}
+
+            // hide pagination if not needed
+            if (totalRows <= pageSize) {
+                $("#paginate").empty().hide();
+                return;
+            } else {
+                $("#paginate").show();
+            }
+
+            $("#paginate").bs_pagination({
+                currentPage: pageNumber + 1,
+                rowsPerPage: parseInt(pageSize),
+                maxRowsPerPage: pageSize,
+                totalRows: $('#resultCount').val(),
+                totalPages: Math.ceil($('#resultCount').val() / parseInt(pageSize)),
+                showGoToPage: false,
+                showRowsPerPage: false,
+                containerClass: "mx-4",
+                navInfoContainerClass: "mx-2 pt-sm-0 pt-2 text-nowrap",
+                visiblePageLinks: 3,
+                onChangePage: function (event, data) {
+                    pageNumber = data.currentPage - 1;
+                    loadAddressList({ pageNumber: pageNumber, pageSize: pageSize });
+                }
+            });
+
+        }
+
+        function loadAddressList(paginationObj) {
+            var pageNumber = paginationObj && typeof paginationObj.pageNumber !== "undefined" ? paginationObj.pageNumber : 0;
+            var pagesize = (paginationObj && paginationObj.pageSize) ? paginationObj.pageSize : $("#pageSize").val() || defaultPageSize;
+
+            // make sure pagesize is a number
+            pagesize = parseInt(pagesize, 10) || defaultPageSize;
+
+            let did = $("#searchDID").val();
+            let city = $("#searchCity").val();
+            let country = $("#searchCountry").val();
+            $.ajax({
+                url: '/DID/GetDIDTable',
+                method: 'GET',
+                data: { pageNumber: pageNumber, pageSize: pagesize, did: did, city: city, country: country },
+                dataType: 'html'
+            }).done(function (data) {
+                $(".didContainer").html(data);
+                 var totalRows = parseInt($('#resultCount').val(), 10) || 0;
+                 loadPagination(pageNumber, pagesize);
+            }).fail(function (xhr, status, err) {
+                console.error("Error loading data:", err);
+            });
+        }
+
+        function showToast(message, type = "success", duration = 3000) 
+        {
+            let toastEl = $("#toastMessage");
+
+            // Change color based on type
+            toastEl.removeClass("bg-success bg-danger").addClass(
+                type === "success" ? "bg-success" : "bg-danger"
+            );
+
+            toastEl.find(".toast-body").text(message);
+
+            // Reset progress bar
+            let progressBar = toastEl.find(".progress-bar");
+                progressBar.removeClass("bg-success bg-danger");
+                progressBar.addClass(type === "success" ? "bg-success" : "bg-danger");
+                progressBar.css("width", "100%");
+
+            // Animate progress bar
+            progressBar.stop(true).animate({ width: "0%" }, duration, "linear");
+
+            // Show toast
+            let toast = new bootstrap.Toast(toastEl[0], { delay: duration });
+            toast.show();
+        }
+
+    </script>
+}

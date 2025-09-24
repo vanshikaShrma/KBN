@@ -1,0 +1,23 @@
+﻿@model KBN.Models.DIDCrud;
+
+<form class="form" id="updateForm">
+    <input asp-for="id" type="hidden"/>
+    <div class="mb-3">
+        <label asp-for="did" class="form-label">Enter DID</label>
+        <input asp-for="did" class="form-control"/>
+        <span asp-validation-for="did"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="city" class="form-label">Enter City</label>
+        <input asp-for="city" class="form-control" />
+        <span asp-validation-for="city"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="country" class="form-label">Enter Country</label>
+        <input asp-for="country" class="form-control" />
+        <span asp-validation-for="country"></span>
+    </div>
+    <button class="btn btn-primary updateDID" type="submit">Update DID</button>
+</form>

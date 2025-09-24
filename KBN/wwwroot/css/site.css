@@ -12,6 +12,9 @@ html {
 .form-control:focus, .form-check-input:focus {
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
+.btn-primary {
+    background: linear-gradient(180deg, #667EEA 0%, #764BA2 100%);
+}
 
 html {
     position: relative;
@@ -40,7 +43,7 @@ body {
     transition: all 0.3s ease;
 }
     /* Sidebar Links */
-    #sidebar .list-group-item {
+#sidebar .list-group-item {
         background: transparent;
         border: none;
         color: rgba(255, 255, 255, 0.85);
@@ -51,9 +54,9 @@ body {
         position: relative;
         overflow: hidden;
         transition: all 0.3s ease-in-out;
-    }
+}
         /* Subtle glow effect */
-        #sidebar .list-group-item::before {
+#sidebar .list-group-item::before {
             content: '';
             position: absolute;
             top: 0;
@@ -62,24 +65,24 @@ body {
             height: 100%;
             background: rgba(255, 255, 255, 0.1);
             transition: left 0.3s ease;
-        }
+}
 
-        #sidebar .list-group-item:hover {
+#sidebar .list-group-item:hover {
             color: #fff;
             background: rgba(255, 255, 255, 0.15);
             transform: translateX(5px);
-        }
+}
 
-            #sidebar .list-group-item:hover::before {
-                left: 0;
-            }
+#sidebar .list-group-item:hover::before {
+     left: 0;
+}
 
-        #sidebar .list-group-item.active {
+#sidebar .list-group-item.active {
             font-weight: 600;
             color: #fff;
             background: rgba(255, 255, 255, 0.2);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
+}
 
 /* Only apply margin when body has .with-sidebar */
 .with-sidebar #main-content {
@@ -88,4 +91,144 @@ body {
 
 .with-sidebar footer {
     margin-left: 260px;
+}
+/* Partial model for did css */
+.mainAddDID {
+    display: flex;
+    flex-direction: row; /* horizontal layout */
+    gap: 10px;
+    width: 100%;
+    max-width: 1000px; /* wider modal */
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+}
+
+/* Left side (SelectionDiv) */
+.SelectionDiv {
+    flex: 0 0 30%; /* 30% width */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.SelectionDiv .generate {
+        width: auto; /* shrink to content */
+        align-self: flex-start; /* align left */
+}
+
+/* Right side (DIDTable) */
+.DIDTable {
+    flex: 0 0 70%; /* 70% width */
+    min-height: 450px;
+    max-height: 450px;
+    overflow-y: auto;
+    background-color: #e9f5ff;
+    border: 1px solid #cce4ff;
+    border-radius: 10px;
+    padding: 10px 15px;
+    font-size: 16px;
+}
+
+/* Compact SelectRanges at top */
+.SelectRanges {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    background: #e9f5ff;
+    border: 1px solid #cce4ff;
+    border-radius: 8px;
+    min-height: 90px; /* small height */
+}
+.SelectRanges label {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.SelectRanges input[type="number"] {
+    padding: 12px 14px; /* slightly bigger inputs */
+    border-radius: 8px;
+    border: 1px solid #bbb;
+    width: 100%;
+    max-width: 220px;
+    font-size: 15px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+.SelectRanges input[type="number"]:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 6px rgba(0, 123, 255, 0.35);
+            outline: none;
+}
+
+/* Bigger ShowDIDs section below SelectRanges */
+.ShowDIDs {
+    flex: 1;
+    min-height: 280px;
+    max-height:300px;
+    flex-direction:column;
+    padding: 0;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 15px;
+}
+
+.DIDAdd {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
+.addDIDModal {
+    max-width: 1000px; /* increase width */
+    margin: auto; /* keep it centered */
+}
+#didTextArea {
+    flex: 1; /* take all space inside .ShowDIDs */
+    width: 100%; /* full width */
+    height: 100%;
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 1px solid #cce4ff;
+    resize: vertical; /* allow vertical resize only */
+    box-sizing: border-box; /* include padding in width */
+    overflow-y: auto;
+    background-color: #e9f5ff;
+}
+
+/* Style pagination numbers like small buttons */
+#paginate ul.pagination li a {
+    border-radius: 6px !important;
+    padding: 4px 10px !important;
+    font-size: 13px;
+    margin: 0 2px;
+    background-color: #f8f9fa;  /* light button background */
+    border: 1px solid #ccc;
+    color: #333;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+/* Hover effect */
+    #paginate ul.pagination li a:hover {
+        background: linear-gradient(180deg, #667EEA 0%, #764BA2 100%) !important;
+        color: #fff;
+    }
+
+/* Active page */
+#paginate ul.pagination li.active a {
+    background: linear-gradient(180deg, #667EEA 0%, #764BA2 100%) !important;
+    border-color: #007bff !important;
+    color: #fff !important;
+    font-weight: bold;
+}
+
+/* Adjust the info text (e.g. "1–5 of 44 records") */
+#paginate .pagination-page-info {
+    font-size: 13px;
+    margin-left: 10px;
+    color: #666;
 }

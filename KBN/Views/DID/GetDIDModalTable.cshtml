@@ -1,0 +1,38 @@
+﻿@model IEnumerable<long>
+
+@if (ViewBag.InvalidCount > 0)
+{
+    <div style="color:red;">
+        Total incorrect DIDs: @ViewBag.InvalidCount
+    </div>
+}
+<table class="table" id="modalDidTable">
+    <thead>
+        <tr>
+            <th>DID</th>
+            <th>Country</th>
+            <th>City</th>
+            <th>Number Type</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var did in Model)
+        {
+            var isInvalid = ViewBag.InvalidDIDs.Contains(did);
+            <tr>
+                <td>@did</td>
+                <td>United States</td>
+                <td><input placeholder="All"/></td>
+                <td>Geographic</td>
+            </tr>
+            @if (isInvalid)
+            {
+                <tr>
+                    <td colspan="4" style="color:red; font-size:small;">
+                        DID must be at least 11 digits.
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
