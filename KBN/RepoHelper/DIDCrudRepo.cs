@@ -47,6 +47,7 @@ namespace KBN.RepoHelper
                 int totalCount = multi.Read<int>().Single();
 
                 var DIDs = multi.Read<DIDCrud>().ToList();
+                
 
                 var data = new DIDViewModel
                 {
@@ -67,6 +68,14 @@ namespace KBN.RepoHelper
             var data = _conn.QuerySingleOrDefault<DIDCrud>(sql, new {Id=id,is_void=false});
             return data;
         }
+        public DIDCrud GetLinkedStatus(int id)
+        {
+            string sql = @"SELECT d.*, ds.did_id, ds.subs_id, ds.is_void As Linked
+                            FROM dbo.DIDCrud d
+                            LEFT JOIN (SELECT did_id, subs_id, is_void FROM dbo.DIDSubscriberMapping  WHERE is_void = @is_void) ds ON d.id = ds.did_id where d.id=@id;";
+            var data = _conn.QuerySingleOrDefault<DIDCrud>(sql, new { id = id, is_void = false });
+            return data;
+        }
         public int UpdateDID(DIDCrud data)
         {
             var validData = GetValidDIDs(new List<DIDCrud> { data },data.id);
@@ -79,13 +88,40 @@ namespace KBN.RepoHelper
             string sql = @"Update dbo.DIDCrud SET
                            DID=@DID , City=@City, Country=@Country where id=@Id";
             var res = _conn.Execute(sql, new { DID = d.did, City = d.city, Country = d.country, Id = d.id });
+            
             return res;
         }
-        public int DeleteDID(int id)
+        public int DeleteDID(int id, string email)
         {
             var time = DateTime.Now;
             string sql = "Update dbo.DIDCrud SET is_void=@is_void , voided_on=@voided_on where Id=@Id";
             var res = _conn.Execute(sql, new { is_void = true, Id = id,voided_on=time });
+            var DID = GetDIDById(id);
+
+            //removing mapping 
+
+            string sqlRemove = @"Update dbo.DIDSubscriberMapping
+                            SET is_void=@is_void,
+                            voided_at=@voided_at,
+                            voided_by=@voided_by
+                             Where did_id=@id";
+
+
+            var voided_by = email;
+
+            var resRemove = _conn.Execute(sqlRemove, new { is_void=true, voided_at=time, voided_by, id });
+
+            //remove from DBAliases
+            string sqlRemoveDBA = @"Update dbo.DBAliases
+                            SET is_void=@is_void,
+                            voided_at=@voided_at,
+                             Where alias_username=@alias_username";
+
+
+           
+
+            var resRemoveDBA = _conn.Execute(sqlRemoveDBA, new { is_void = true, voided_at = time, alias_username=DID.did });
+
             return res;
         }
 

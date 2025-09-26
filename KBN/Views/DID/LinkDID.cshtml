@@ -1,0 +1,14 @@
+﻿
+
+<form id="linkDIDForm">
+    <div class="mb-3">
+        <label for="subscriber" class="form-label">Select Subscriber</label>
+        @Html.DropDownList(
+        "SelectedSubscriber",            // Name of the field
+                (IEnumerable<SelectListItem>)ViewBag.SubscriberList,
+                "-- Select Subscriber --",      // Optional default text
+                new { @class = "form-select" }  // HTML attributes
+                )
+    </div>
+    <button class="btn btn-secondary addLink">Link</button>
+</form>

@@ -11,6 +11,7 @@ namespace KBN.RepoHelper
         public List<long> GetInvalidDids(List<long> list);
         public int AddDIDs(List<DIDCrud> data,string userEmail);
         public int UpdateDID(DIDCrud data);
-        public int DeleteDID(int id);
+        public int DeleteDID(int id,string email);
+        public DIDCrud GetLinkedStatus(int id);
     }
 }

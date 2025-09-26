@@ -9,6 +9,7 @@
             <th scope="col" class="text-center">City</th>
             <th scope="col" class="text-center">Country</th>
             <th scope="col" class="text-center">DID Status</th>
+            <th scope="col" class="text-center">Linked</th>
             <th scope="col" class="text-center">Manage</th>
             </tr>
         </thead>
@@ -21,6 +22,26 @@
                 <td class="text-center">@(String.IsNullOrEmpty(item.country) ? "-" : item.country)</td>
                 <td class="text-center">-</td>
                 <td class="text-center">
+                    @{
+                        var text = "";
+                        if(item.Linked==null)
+                        {
+                            text = "Not Linked";
+                        }
+                        if(item.Linked==0)
+                        {
+                            text = "Linked";
+                        }
+                        if(item.Linked==1)
+                        {
+                            text = "Not Linked";
+                        }
+                    }
+                    @text
+                </td>
+
+
+                <td class="text-center">
                     <button class="btn btn-outline-success updateButton"
                             data-action="DID/UpdateDID/@item.id"
                             title="Update">
@@ -31,6 +52,11 @@
                             data-action="DID/DeleteDID/@item.id"
                             title="Delete">
                         <i class="bi bi-trash"></i>
+                    </button>
+                    <button class="btn btn-outline-primary linkButton"
+                            data-action="DID/LinkDID/@item.id"
+                            title="Link">
+                        <i class="bi bi-link"></i>
                     </button>
                 </td>
 

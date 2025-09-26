@@ -1,0 +1,368 @@
+﻿
+@{
+    ViewData["Title"] = "Subscriber";
+}
+
+<button class="btn btn-secondary addSubsButton mb-3">Add Subsciber</button>
+
+<div class="d-flex align-items-center gap-2 mb-3">
+    <input placeholder="User Name" class="form-control" id="searchUserName" />
+    <input placeholder="Customer Name" class="form-control" id="searchCustomer" />
+    <button class="btn btn-primary searchButton">Search</button>
+    <button class="btn btn-secondary resetButton">Reset</button>
+    <select id="PageSize" class="form-select w-auto">
+        <option value="5">5 items per Page</option>
+        <option value="10">10 items per Page</option>
+        <option value="15">15 items per Page</option>
+        <option value="20">20 items per Page</option>
+    </select>
+</div>
+
+
+<div class="substable">
+
+</div>
+
+<div id="paginate"></div>
+<!-- Modal -->
+<div class="modal fade " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts 
+{
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        var defaultPageSize=5;
+        $(document).ready(function()
+        {
+            $("#PageSize").val(defaultPageSize);
+
+            loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+            // bringSubsTable();
+            $(".addSubsButton").click(function()
+            {
+                $.ajax({
+                    url:"Subscriber/AddSubscriber",
+                    type:"GET",
+                    dataType:"html",
+                    success:function(response)
+                    {
+                        $("#exampleModal .modal-body").html(response);
+                        $("#exampleModal .modal-header h1").html("Add Subscriber");
+                        $.validator.unobtrusive.parse($("#addSubscriberForm"));
+                        $("#exampleModal").modal("show");
+                    },
+                    error:function(xhr,status,error)
+                    {
+                        console.log("There is error in getting add partial: ",error);
+                    }
+                });
+                
+            });
+
+            $(document).on("submit","#addSubscriberForm",function(e)
+            {
+                e.preventDefault();
+                var form = $(this);
+                    if(!form.validate()) return;
+                $.ajax({
+                    url:"Subscriber/AddSubscriber",
+                    type:"POST",
+                    data:$(this).serialize(),
+                    success:function(response)
+                    {
+                        if(response.success1 && response.success2)
+                        {
+                            $("#exampleModal").modal("hide");
+                            // bringSubsTable();
+                             loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                            showToast(response.message,"success");
+                        }
+                        else if(response.success1 && !response.success2)
+                        {
+                            $("#exampleModal").modal("hide");
+                            // bringSubsTable();
+                             loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                            showToast(response.message,"danger");
+                        }
+                        else{
+                            $("#exampleModal").modal("hide");
+                            // bringSubsTable();
+                             loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                            showToast(response.message,"danger");
+                        }
+                        
+                    },
+                    error:function(xhr,status,error)
+                    {
+                        showToast("Error in Add","danger");
+                    }
+                });
+            });
+            $(document).on("click",".updateButton",function()
+            {
+                let URL=$(this).data("action");
+                $.ajax({
+                    url:URL,
+                    type:"GET",
+                    dataType:"html",
+                    success:function(response)
+                    {
+                        $("#exampleModal .modal-body").html(response);
+                        $("#exampleModal .modal-header h1").html("Update Subscriber");
+                        $("#updateSubscriberForm").data("action",URL);
+                        $.validator.unobtrusive.parse($("#updateSubscriberForm"));
+                        console.log($("#updateSubscriberForm").data("action"));
+                        $("#exampleModal").modal("show");
+                    },
+                    error:function(xhr,status,error)
+                    {
+                        console.log("There is error in getting add partial: ",error);
+                    }
+                });
+            });
+            $(document).on("submit","#updateSubscriberForm",function(e)
+            {
+                e.preventDefault();
+                var form = $(this);
+                if(!form.validate()) return;
+                $.ajax({
+                    url:$(this).data("action"),
+                    type:"POST",
+                    data:$(this).serialize(),
+                    success:function(response)
+                    {
+                        if(response.message=="Subscriber Updated Successfully")
+                        {
+                            $("#exampleModal").modal("hide");
+                            // bringSubsTable();
+                             loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                            showToast(response.message,"success");
+                        }
+                        else if(response.message=="Cannot Update customer")
+                        {
+                            $("#exampleModal").modal("hide");
+                            // bringSubsTable();
+                             loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                            showToast(response.message,"danger");
+                        }
+                        else if(response.message=="Update Done")
+                        {
+                            $("#exampleModal").modal("hide");
+                            // bringSubsTable();
+                             loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                            showToast(response.message,"success");
+                        }
+                        else if(response.message=="No Changes")
+                        {
+                            $("#exampleModal").modal("hide");
+                            // bringSubsTable();
+                             loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                            showToast(response.message,"success");
+                        }
+                        else if(response.message=="Subs Updated!")
+                        {
+                            $("#exampleModal").modal("hide");
+                            // bringSubsTable();
+                             loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                            showToast(response.message,"success");
+                        }
+                        else if(response.message=="Subscriber is not unique!")
+                        {
+                            $("#exampleModal").modal("hide");
+                            // bringSubsTable();
+                             loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                            showToast(response.message,"danger");
+                        }
+                        else{
+                            $("#exampleModal").modal("hide");
+                            // bringSubsTable();
+                             loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                            showToast(response.message,"danger");
+                        }
+                    },
+                    error:function(xhr,status,error)
+                    {
+                        showToast("Error in Add","danger");
+                    }
+                });
+            });
+            $(document).on("click",".deleteButton",function()
+            {
+                let URL = $(this).data("action");
+                 $.ajax({
+                   url:"Subscriber/DeleteSubscriber",
+                   type:"GET",
+                   success:function(response){
+                       $("#exampleModal .modal-body").html(response);
+                       $("#exampleModal .modal-header h1").html("Delete Subscriber");
+                       $("#deleteForm").data("action",URL);
+                       $("#exampleModal").modal("show");
+                   },
+                   error:function(xhr,status,error)
+                   {
+                       console.log(error);
+                   }
+               });
+            });
+
+           $(document).on("submit","#deleteForm",function(e)
+           {
+               e.preventDefault();
+               $.ajax({
+                   url:$(this).data("action"),
+                   type:"DELETE",
+                   success:function(response){
+                       $("#exampleModal").modal("hide");
+                       console.log(response.message);
+                       $("#exampleModal .modal-header h1").html("");
+                       // bringSubsTable();
+                        loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                   },
+                   error:function(xhr,status,error)
+                   {
+                       console.log(error);
+                   }
+               });
+           });
+
+           $(document).on("click", ".searchButton", function () {
+                // bringSubsTable();
+                 loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+           });
+
+            $(document).on("click", ".resetButton", function () {
+                $("#searchUserName").val("");
+                $("#searchCustomer").val("");
+                loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                // bringSubsTable();
+            });
+            $(document).on("click", "#togglePassword", function () 
+            {
+                var $pwd = $("#password");
+                var $icon = $(this).find("i");
+
+                if ($pwd.attr("type") === "password") {
+                    $pwd.attr("type", "text");
+                    $icon.removeClass("bi-eye").addClass("bi-eye-slash");
+                } else {
+                    $pwd.attr("type", "password");
+                    $icon.removeClass("bi-eye-slash").addClass("bi-eye");
+                }
+            });
+           $(document).on("click", ".togglePasswordInTable", function () 
+           {
+                var $btn = $(this);
+                var $icon = $btn.find("i");
+                var $mask = $btn.siblings(".password-mask");
+
+                if ($mask.text() === "******") {
+                    $mask.text($mask.data("password")); // show real password
+                    $icon.removeClass("bi-eye").addClass("bi-eye-slash ml-3");
+                } else {
+                    $mask.text("******"); // hide again
+                    $icon.removeClass("bi-eye-slash").addClass("bi-eye");
+                }
+           });
+
+           
+            
+        });
+
+        function bringSubsTable()
+        {
+            let username = $("#searchUserName").val();
+            let customer = $("#searchCustomer").val();
+            $.ajax({
+                url:"Subscriber/GetSubsTable",
+                type:"GET",
+                dataType:"html",
+                data: { username:username, customer:customer  },
+                success:function(response)
+                {
+                    $(".substable").html(response);
+                },
+                error:function(xhr,status,error)
+                {
+                    console.log(error);
+                }
+            });
+        }
+        function showToast(message, type = "success", duration = 3000)
+        {
+            let toastEl = $("#toastMessage");
+            toastEl.removeClass("bg-success bg-danger").addClass(
+                type === "success" ? "bg-success" : "bg-danger"
+            );
+            toastEl.find(".toast-body").text(message);
+            let progressBar = toastEl.find(".progress-bar");
+                progressBar.removeClass("bg-success bg-danger");
+                progressBar.addClass(type === "success" ? "bg-success" : "bg-danger");
+                progressBar.css("width", "100%");
+            progressBar.stop(true).animate({ width: "0%" }, duration, "linear");
+            let toast = new bootstrap.Toast(toastEl[0], { delay: duration });
+            toast.show();
+        }
+        function loadPagination(pageNumber, pageSize)
+        {
+            pageSize = parseInt(pageSize, 10) || defaultPageSize;
+            var totalRows = parseInt($('#resultCount').val(), 10) || 0;
+              console.log("loadPagination -> totalRows:", totalRows, "pageSize:", pageSize);
+            // destroy previous instance if present
+            try { $("#paginate").bs_pagination("destroy"); } catch (e) {}
+
+            $("#paginate").bs_pagination({
+                currentPage: pageNumber + 1,
+                rowsPerPage: parseInt(pageSize),
+                maxRowsPerPage: pageSize,
+                totalRows: $('#resultCount').val(),
+                totalPages: Math.ceil($('#resultCount').val() / parseInt(pageSize)),
+                showGoToPage: false,
+                showRowsPerPage: false,
+                containerClass: "mx-4",
+                navInfoContainerClass: "mx-2 pt-sm-0 pt-2 text-nowrap",
+                visiblePageLinks: 3,
+                onChangePage: function (event, data) {
+                    pageNumber = data.currentPage - 1;
+                    loadAddressList({ pageNumber: pageNumber, pageSize: pageSize });
+                }
+            });
+
+        }
+
+        function loadAddressList(paginationObj)
+        {
+            var pageNumber = paginationObj && typeof paginationObj.pageNumber !== "undefined" ? paginationObj.pageNumber : 0;
+            var pagesize = (paginationObj && paginationObj.pageSize) ? paginationObj.pageSize : $("#pageSize").val() || defaultPageSize;
+
+            // make sure pagesize is a number
+            pagesize = parseInt(pagesize, 10) || defaultPageSize;
+
+            let username = $("#searchUserName").val();
+            let customer = $("#searchCustomer").val();
+            $.ajax({
+                url: 'Subscriber/GetSubsTable',
+                method: 'GET',
+                 data: { username:username, customer:customer,pageNumber: pageNumber, pageSize: pagesize  },
+                dataType: 'html'
+            }).done(function (data) {
+                $(".substable").html(data);
+                 var totalRows = parseInt($('#resultCount').val(), 10) || 0;
+                 loadPagination(pageNumber, pagesize);
+            }).fail(function (xhr, status, err) {
+                console.error("Error loading data:", err);
+            });
+        }
+    </script>
+}

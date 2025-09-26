@@ -1,0 +1,33 @@
+﻿@model KBN.Models.DIDSubsLinkViewModel
+
+
+@Html.Hidden("resultCount", Model.TotalRows, new { id = "resultCount" })
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th scope="col" class="text-center">DID</th>
+            <th scope="col" class="text-center">Subscriber</th>
+            <th scope="col" class="text-center">Linked At</th>
+            <th scope="col" class="text-center">Linked By</th>
+            <th scope="col" class="text-center">Manage</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.dIDSubsLinks)
+        {
+            <tr>
+                <td class="text-center">@item.did</td>
+                <td class="text-center">@item.subscriber</td>
+                <td class="text-center">@item.linked_at</td>
+                <td class="text-center">@item.linked_by</td>
+                <td class="text-center">
+                    <button class="btn btn-outline-danger unlinkButton"
+                            title="UnLink" data-action="Link/RemoveMapping/@item.id">
+                      UnLink
+                    </button>
+
+            </tr>
+        }
+    </tbody>
+</table>

@@ -15,5 +15,9 @@ namespace KBN.Models
         public long did { get; set; }
 
         public bool status { get; set; }
+
+        public int? subs_id { get; set; }
+
+        public int? Linked { get; set; }
     }
 }

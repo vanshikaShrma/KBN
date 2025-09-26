@@ -1,0 +1,25 @@
+﻿@model KBN.Models.DBAliasesViewModel;
+
+@Html.Hidden("resultCount", Model.TotalRows, new { id = "resultCount" })
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col" class="text-center">Username</th>
+                <th scope="col" class="text-center">Alias Username</th>
+                <th scope="col" class="text-center">Recorded At</th>
+                <th scope="col" class="text-center">Recorded By</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var item in Model.AllData)
+            {
+            <tr>
+                <td class="text-center">@item.username</td>
+                <td class="text-center">@item.alias_username</td>
+                <td class="text-center">@item.recorded_at</td>
+                <td class="text-center">@item.recorded_by</td>
+            </tr>
+        }
+        </tbody>
+    </table>

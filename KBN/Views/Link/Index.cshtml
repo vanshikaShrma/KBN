@@ -1,0 +1,180 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1 class="mb-4">Linked DIDs</h1>
+
+<div class="d-flex align-items-center gap-2 mb-3">
+    <input placeholder="DID" class="form-control" id="searchDID" />
+    <input placeholder="Subscriber" class="form-control" id="searchSubscriber" />
+    <input placeholder="Linked By" class="form-control" id="searchLinkedBy" />
+    <button class="btn btn-primary searchButton">Search</button>
+    <button class="btn btn-secondary resetButton">Reset</button>
+    <select id="PageSize" class="form-select w-auto">
+        <option value="5">5 items per Page</option>
+        <option value="10">10 items per Page</option>
+        <option value="15">15 items per Page</option>
+        <option value="20">20 items per Page</option>
+    </select>
+</div>
+<div class="linkedDIDsTable">
+    @* linked dids will appear here *@
+</div>
+<div id="paginate"></div>
+<!-- Modal -->
+<div class="modal fade " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+         var defaultPageSize=5;
+        $(document).ready(function()
+        {
+
+             $("#PageSize").val(defaultPageSize);
+
+            loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+
+            $(document).on("click",".unlinkButton",function()
+            {
+                let URL = $(this).data("action");
+                $.ajax({
+                    url:"Link/RemoveMapping",
+                    type:"GET",
+                    dataType:"html",
+                    success:function(response)
+                    {
+                        $("#exampleModal .modal-body").html(response);
+                        $("#exampleModal .modal-header h1").html("Confirm Unlink");
+                        $('#RemoveLinkForm').data("action",URL);
+                        $("#exampleModal").modal("show");
+                    },
+                    error:function(xhr,status,error)
+                    {
+                        console.log(error);
+                    }
+                });
+            });
+            $(document).on("submit","#RemoveLinkForm",function(e)
+            {
+                e.preventDefault();
+                let URL = $(this).data("action");
+                $.ajax({
+                    url:URL,
+                    type:"DELETE",
+                    success:function(response)
+                    {
+                        $("#exampleModal .modal-body").html(response.message);
+                        $("#exampleModal .modal-header h1").html("Response");
+                        GetLinkedDIDsTable();
+                    },
+                    error:function(xhr,status,error)
+                    {
+                        console.log(error);
+                    }
+                });
+            });
+            $(document).on("click", ".searchButton", function () {
+                // GetLinkedDIDsTable();
+                loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+           });
+
+            $(document).on("click", ".resetButton", function () {
+                $("#searchDID").val("");
+                $("#searchSubscriber").val("");
+                $("#searchLinkedBy").val("");
+                loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                // GetLinkedDIDsTable()
+            });
+        });
+        function GetLinkedDIDsTable()
+        {
+            let did = $("#searchDID").val();
+            let subscriber = $("#searchSubscriber").val();
+            let linked_by = $("#searchLinkedBy").val();
+            $.ajax({
+                url:"Link/GetLinkedDIDstable",
+                type:"GET",
+                dataType:"html",
+                data:{ did:did, subscriber:subscriber, linked_by:linked_by },
+                success:function(response)
+                {
+                    $(".linkedDIDsTable").html(response);
+                },
+                error:function(xhr,status,error)
+                {
+                    console.log(error);
+                }
+            });
+        }
+        function loadPagination(pageNumber, pageSize)
+        {
+            pageSize = parseInt(pageSize, 10) || defaultPageSize;
+            var totalRows = parseInt($('#resultCount').val(), 10) || 0;
+              console.log("loadPagination -> totalRows:", totalRows, "pageSize:", pageSize);
+            // destroy previous instance if present
+            try { $("#paginate").bs_pagination("destroy"); } catch (e) {}
+
+
+
+            $("#paginate").bs_pagination({
+                currentPage: pageNumber + 1,
+                rowsPerPage: parseInt(pageSize),
+                maxRowsPerPage: pageSize,
+                totalRows: $('#resultCount').val(),
+                totalPages: Math.ceil($('#resultCount').val() / parseInt(pageSize)),
+                showGoToPage: false,
+                showRowsPerPage: false,
+                containerClass: "mx-4",
+                navInfoContainerClass: "mx-2 pt-sm-0 pt-2 text-nowrap",
+                visiblePageLinks: 3,
+                onChangePage: function (event, data) {
+                    pageNumber = data.currentPage - 1;
+                    loadAddressList({ pageNumber: pageNumber, pageSize: pageSize });
+                }
+            });
+
+        }
+
+        function loadAddressList(paginationObj)
+        {
+            var pageNumber = paginationObj && typeof paginationObj.pageNumber !== "undefined" ? paginationObj.pageNumber : 0;
+            var pagesize = (paginationObj && paginationObj.pageSize) ? paginationObj.pageSize : $("#pageSize").val() || defaultPageSize;
+
+            // make sure pagesize is a number
+            pagesize = parseInt(pagesize, 10) || defaultPageSize;
+
+            let did = $("#searchDID").val();
+            let subscriber = $("#searchSubscriber").val();
+            let linked_by = $("#searchLinkedBy").val();
+            $.ajax({
+                url: 'Link/GetLinkedDIDstable',
+                method: 'GET',
+                 data:{ pageNumber: pageNumber, pageSize: pagesize,did:did, subscriber:subscriber, linked_by:linked_by },
+                dataType: 'html'
+            }).done(function (data) {
+                $(".linkedDIDsTable").html(data);
+                 var totalRows = parseInt($('#resultCount').val(), 10) || 0;
+                 loadPagination(pageNumber, pagesize);
+            }).fail(function (xhr, status, err) {
+                console.error("Error loading data:", err);
+            });
+        }
+    </script>
+  
+}
+

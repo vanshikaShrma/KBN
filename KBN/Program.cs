@@ -34,8 +34,12 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.AddTransient<IAesEncryption, AesEncryption>();
 
 builder.Services.AddScoped<IDIDCrudRepo, DIDCrudRepo>();
+builder.Services.AddScoped<ISubscriberRepo, SubscriberRepo>();
+builder.Services.AddScoped<IDIDSubsMappingRepo, DIDSubsMappingRepo>();
+builder.Services.AddScoped<IDBALiasesRepo, DBAliasesRepo>();
 
 builder.Services.AddControllersWithViews();
 

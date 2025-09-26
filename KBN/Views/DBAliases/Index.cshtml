@@ -1,0 +1,122 @@
+﻿
+@{
+    ViewData["Title"] = "DB Aliases";
+}
+
+<h1 class="mb-3">DB Aliases</h1>
+
+<div class="d-flex align-items-center gap-2 mb-3">
+    <input placeholder="Alias Username" class="form-control" id="searchAU" />
+    <input placeholder="Username" class="form-control" id="searchUsername" />
+    <input placeholder="Linked By" class="form-control" id="searchLinkedBy" />
+    <button class="btn btn-primary searchButton">Search</button>
+    <button class="btn btn-secondary resetButton">Reset</button>
+    <select id="PageSize" class="form-select w-auto">
+        <option value="5">5 items per Page</option>
+        <option value="10">10 items per Page</option>
+        <option value="15">15 items per Page</option>
+        <option value="20">20 items per Page</option>
+    </select>
+</div>
+
+<div class="dbAliasesTable">
+
+</div>
+<div id="paginate"></div>
+
+@section Scripts 
+{
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        var defaultPageSize=5;
+        $(document).ready(function(){
+
+             loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+
+            $(document).on("click", ".searchButton", function () {
+               
+                loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+           });
+
+            $(document).on("click", ".resetButton", function () {
+                $("#searchAU").val("");
+                $("#searchUsername").val("");
+                $("#searchLinkedBy").val("");
+                loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                
+            });
+        });
+        function GetTable()
+        {
+            let alias_username = $("#searchAU").val();
+            let username = $("#searchUsername").val();
+            let recorded_by = $("#searchLinkedBy").val();
+            $.ajax({
+                url:"DBAliases/GetTable",
+                type:"GET",
+                dataType:"html",
+                 data:{ alias_username:alias_username, username:username, recorded_by:recorded_by },
+                success:function(response)
+                {
+                    $(".dbAliasesTable").html(response);
+                },
+                error:function(xhr,status,error){
+                    console.log(error);
+                }
+            });
+        }
+        function loadPagination(pageNumber, pageSize)
+        {
+            pageSize = parseInt(pageSize, 10) || defaultPageSize;
+            var totalRows = parseInt($('#resultCount').val(), 10) || 0;
+              console.log("loadPagination -> totalRows:", totalRows, "pageSize:", pageSize);
+            // destroy previous instance if present
+            try { $("#paginate").bs_pagination("destroy"); } catch (e) {}
+
+
+
+            $("#paginate").bs_pagination({
+                currentPage: pageNumber + 1,
+                rowsPerPage: parseInt(pageSize),
+                maxRowsPerPage: pageSize,
+                totalRows: $('#resultCount').val(),
+                totalPages: Math.ceil($('#resultCount').val() / parseInt(pageSize)),
+                showGoToPage: false,
+                showRowsPerPage: false,
+                containerClass: "mx-4",
+                navInfoContainerClass: "mx-2 pt-sm-0 pt-2 text-nowrap",
+                visiblePageLinks: 3,
+                onChangePage: function (event, data) {
+                    pageNumber = data.currentPage - 1;
+                    loadAddressList({ pageNumber: pageNumber, pageSize: pageSize });
+                }
+            });
+
+        }
+
+        function loadAddressList(paginationObj)
+        {
+            var pageNumber = paginationObj && typeof paginationObj.pageNumber !== "undefined" ? paginationObj.pageNumber : 0;
+            var pagesize = (paginationObj && paginationObj.pageSize) ? paginationObj.pageSize : $("#pageSize").val() || defaultPageSize;
+
+            // make sure pagesize is a number
+            pagesize = parseInt(pagesize, 10) || defaultPageSize;
+
+            let alias_username = $("#searchAU").val();
+            let username = $("#searchUsername").val();
+            let recorded_by = $("#searchLinkedBy").val();
+            $.ajax({
+                url: 'DBAliases/GetTable',
+                method: 'GET',
+                 data:{ pageNumber: pageNumber, pageSize: pagesize,alias_username:alias_username, username:username, recorded_by:recorded_by },
+                dataType: 'html'
+            }).done(function (data) {
+                $(".dbAliasesTable").html(data);
+                 var totalRows = parseInt($('#resultCount').val(), 10) || 0;
+                 loadPagination(pageNumber, pagesize);
+            }).fail(function (xhr, status, err) {
+                console.error("Error loading data:", err);
+            });
+        }
+    </script>
+}

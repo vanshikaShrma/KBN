@@ -101,7 +101,7 @@
                             });
                        });
                        bringDIDModaltable(response.dids)
-                       
+
                    },
                    error:function(xhr,status,error)
                    {
@@ -246,7 +246,7 @@
                    }
                });
            });
-           
+
            $(document).on("click", ".searchButton", function () {
                 loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
            });
@@ -257,7 +257,57 @@
                 $("#searchCountry").val("");
                 loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
             });
-          
+
+             $(document).on("click",".linkButton",function()
+             {
+                 let URL = $(this).data("action");
+                    $.ajax({
+                     url:"DID/LinkDID",
+                     type:"GET",
+                     dataType:"html",
+                     success:function(response){
+                         $("#exampleModal .modal-body").html(response);
+                         $("#exampleModal .modal-header h1").html("Link Subscriber");
+                         $("#linkDIDForm").data("action",URL)
+                         $("#exampleModal").modal("show");
+                     },
+                     error:function(xhr,status,error)
+                     {
+                         console.log(error);
+                     }
+                 });
+             });
+
+              $(document).on("submit","#linkDIDForm",function(e)
+             {
+                 e.preventDefault(e);
+
+                    $.ajax({
+                     url:$(this).data("action"),
+                     type:"POST",
+                     data:$(this).serialize(),
+                     success:function(response){
+                         if(response.message=="Already Linked")
+                         {
+                            $("#exampleModal").modal("hide");
+                            showToast(response.message,"danger");
+                            loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                         }
+                         else{
+                             $("#exampleModal").modal("hide");
+                            showToast(response.message,"success");
+                            loadAddressList({ pageNumber: 0, pageSize: defaultPageSize });
+                         }
+                         
+                     },
+                     error:function(xhr,status,error)
+                     {
+                         console.log(error);
+                     }
+                 });
+             });
+
+
         });
 
         function bringDIDModaltable(list)
@@ -267,7 +317,7 @@
                 url:"DID/GetDIDModalTable",
                 type:"POST",
                 contentType: "application/json",
-                data: JSON.stringify(list), 
+                data: JSON.stringify(list),
                 success:function(response)
                 {
                     $(".DIDTable").html(response);
@@ -278,7 +328,7 @@
                 }
             });
         }
-        function loadPagination(pageNumber, pageSize) 
+        function loadPagination(pageNumber, pageSize)
         {
             pageSize = parseInt(pageSize, 10) || defaultPageSize;
             var totalRows = parseInt($('#resultCount').val(), 10) || 0;
@@ -286,13 +336,7 @@
             // destroy previous instance if present
             try { $("#paginate").bs_pagination("destroy"); } catch (e) {}
 
-            // hide pagination if not needed
-            if (totalRows <= pageSize) {
-                $("#paginate").empty().hide();
-                return;
-            } else {
-                $("#paginate").show();
-            }
+
 
             $("#paginate").bs_pagination({
                 currentPage: pageNumber + 1,
@@ -313,7 +357,8 @@
 
         }
 
-        function loadAddressList(paginationObj) {
+        function loadAddressList(paginationObj)
+        {
             var pageNumber = paginationObj && typeof paginationObj.pageNumber !== "undefined" ? paginationObj.pageNumber : 0;
             var pagesize = (paginationObj && paginationObj.pageSize) ? paginationObj.pageSize : $("#pageSize").val() || defaultPageSize;
 
@@ -337,7 +382,7 @@
             });
         }
 
-        function showToast(message, type = "success", duration = 3000) 
+        function showToast(message, type = "success", duration = 3000)
         {
             let toastEl = $("#toastMessage");
 

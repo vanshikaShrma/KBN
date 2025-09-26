@@ -1,0 +1,42 @@
+﻿@model KBN.Models.SubscriberViewModel;
+
+@Html.Hidden("resultCount", Model.TotalRows, new { id = "resultCount" })
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col" class="text-center">User Name</th>
+            <th scope="col" class="text-center">Password</th>
+            <th scope="col" class="text-center">Customer Name</th>
+            <th scope="col" class="text-center">Manage</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var subs in Model.Subscribers ?? new List<SubsCustom>())
+        {
+            <tr>
+                <td class="text-center">@subs?.username</td>
+                <td class="text-center">
+                    <span class="password-mask" data-password="@subs?.password">******</span>
+                    <span class="togglePasswordInTable ms-2" role="button" style="cursor:pointer;">
+                        <i class="bi bi-eye"></i>
+                    </span>
+                </td>
+                <td class="text-center">@(String.IsNullOrEmpty(subs.customer_name) ? "-" : subs.customer_name)</td>
+                <td class="text-center">
+                    <button class="btn btn-outline-success updateButton"
+                            data-action="Subscriber/UpdateSubscriber/@subs.id"
+                            title="Update">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+
+                    <button class="btn btn-outline-danger deleteButton"
+                            data-action="Subscriber/DeleteSubscriber/@subs.id"
+                            title="Delete">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
